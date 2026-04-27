@@ -16,3 +16,48 @@
 ## Install via NuGet
 
     Install-Package Open3270
+
+---
+
+## Java Port
+
+A complete Java 17 Maven port of this library is available under `src/main/java/com/open3270/`.
+
+### Requirements
+
+* Java 17+
+* Maven 3.6+
+
+### Build
+
+```bash
+mvn compile
+mvn test
+```
+
+### Quick start
+
+```java
+try (TNEmulator em = new TNEmulator()) {
+    em.connect("mainframe.example.com", 23);
+    if (em.waitForConnect(5000)) {
+        System.out.println(em.getScreen().dump());
+        em.sendEnter();
+        em.waitForUnlock(5000);
+        System.out.println(em.getText(1, 1, 80)); // row 1, col 1, 80 chars
+    }
+}
+```
+
+### Spring Boot autoconfiguration
+
+Add the jar to your Spring Boot application. Properties prefix: `open3270`:
+
+```yaml
+open3270:
+  host: mainframe.example.com
+  port: 23
+  term-type: IBM-3278-2-E
+  use-ssl: false
+  connect-timeout-ms: 5000
+```
