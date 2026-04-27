@@ -1,41 +1,58 @@
-# Welcome
+# Open3270 Java Client Library
 
-*Open3270 provides a high level API to connect to mainframe 3270 sessions from a .NET application.*
+A standalone Java 21 Maven library for connecting to IBM mainframe 3270 sessions using
+the TN3270 and TN3270E protocols.  Ready for use in **Spring Boot 3.x** applications.
 
-## Key features include
+## Credits
 
-* Support for TN3270 and TN3270E from all Microsoft .NET applications (VB.NET and C#) 
-* Support for formatted and unformatted screens 
-* Support for multiple LUs and connections that require a specific LU to be specified 
-* Support for unlimited TN3270 connections from a single application 
-* Support for ASP.NET and WinForms applications
-* 100% Managed Microsoft .NET 3270 emulation
-* Support for multiple LUs, formatted and unformatted screens and most 3270 "bugs".
-* Coded entirely in C#, with overlapped I/O replacing the frequently used multi-threaded server approach to 3270 connectivity, this library is extremely efficient and lightweight, suitable both for WinForms applications as well as ASP.NET server applications
+This library is a Java translation of the original **Open3270** project:
 
-## Install via NuGet
+| | |
+|---|---|
+| **Original Authors** | Michael Warriner and contributors |
+| **Original Copyright** | Copyright (c) 2004-2020 Michael Warriner |
+| **Original Repository** | https://github.com/Open3270/Open3270 |
+| **Original License** | MIT License |
 
-    Install-Package Open3270
+> The original Open3270 library is a C# implementation of the TN3270/TN3270E protocol
+> and was the authoritative source for this Java port.
 
----
+## License
 
-## Java Port
+MIT License — Copyright (c) 2026 ivanlopezmolina  
+(See [LICENSE.txt](LICENSE.txt) for full text.)
 
-A complete Java 17 Maven port of this library is available under `src/main/java/com/open3270/`.
+## Key features
 
-### Requirements
+* TN3270 and TN3270E protocol support
+* Formatted and unformatted screen support
+* Multiple LU / connection support
+* Spring Boot 3.x autoconfiguration (`open3270.*` properties)
+* Java 21, Maven build, zero external runtime dependencies beyond SLF4J
 
-* Java 17+
+## Requirements
+
+* Java 21+
 * Maven 3.6+
 
-### Build
+## Build
 
 ```bash
 mvn compile
 mvn test
 ```
 
-### Quick start
+## Maven dependency
+
+```xml
+<dependency>
+    <groupId>com.open3270</groupId>
+    <artifactId>open3270-client</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+## Quick start
 
 ```java
 try (TNEmulator em = new TNEmulator()) {
@@ -49,9 +66,9 @@ try (TNEmulator em = new TNEmulator()) {
 }
 ```
 
-### Spring Boot autoconfiguration
+## Spring Boot autoconfiguration
 
-Add the jar to your Spring Boot application. Properties prefix: `open3270`:
+Add the jar to your Spring Boot 3.x application.  Properties prefix: `open3270`:
 
 ```yaml
 open3270:
@@ -60,4 +77,20 @@ open3270:
   term-type: IBM-3278-2-E
   use-ssl: false
   connect-timeout-ms: 5000
+```
+
+A `ConnectionConfig` bean is registered automatically.  Use it to build a
+`TNEmulator` wherever you need a connection:
+
+```java
+@Autowired
+private ConnectionConfig open3270ConnectionConfig;
+
+public void run() throws Exception {
+    try (TNEmulator em = new TNEmulator(open3270ConnectionConfig)) {
+        em.connect(open3270ConnectionConfig.getHostName(),
+                   open3270ConnectionConfig.getHostPort());
+        // ...
+    }
+}
 ```
