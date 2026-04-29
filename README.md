@@ -46,8 +46,8 @@ mvn test
 
 ```xml
 <dependency>
-    <groupId>com.open3270</groupId>
-    <artifactId>open3270-client</artifactId>
+    <groupId>io.github.ivanlopezmolina</groupId>
+    <artifactId>open3270client</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
