@@ -49,6 +49,18 @@ namespace TerminalDemo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DangerousTlsCertificateValidationBypass {
+            get {
+                return ((bool)(this["DangerousTlsCertificateValidationBypass"]));
+            }
+            set {
+                this["DangerousTlsCertificateValidationBypass"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("IBM-3278-2-E")]
         public string TerminalType {
             get {
