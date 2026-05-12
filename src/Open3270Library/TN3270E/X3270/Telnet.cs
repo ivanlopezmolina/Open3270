@@ -1460,8 +1460,21 @@ namespace Open3270.TN3270
 
 					if (this.Config.UseSSL)
 					{
+						trace.WriteTlsConnectionStatusLine(this.Config.GetTlsCertificateValidationStatusSummary());
 						NetworkStream mNetworkStream = new NetworkStream(socketBase, false);
-						SslStream ssl = new SslStream(mNetworkStream, false, new RemoteCertificateValidationCallback(cryptocallback));
+						SslStream ssl;
+						// Default path: platform certificate validation (no custom callback). Search: TLS bypass, certificate validation bypass.
+						if (this.Config.DangerousTlsCertificateValidationBypass)
+						{
+							ssl = new SslStream(
+								mNetworkStream,
+								false,
+								new RemoteCertificateValidationCallback(TlsCertificatePermissiveValidationCallbackForBypassOnly));
+						}
+						else
+						{
+							ssl = new SslStream(mNetworkStream, false);
+						}
 						ssl.AuthenticateAsClient(this.address);
 						trace.WriteLine("SSL Connection made. Encryption is '" + ssl.IsEncrypted + "'");
 
@@ -2851,7 +2864,11 @@ namespace Open3270.TN3270
 
 
 
-		bool cryptocallback(
+		/// <summary>
+		/// Used only when <see cref="ConnectionConfig.DangerousTlsCertificateValidationBypass"/> is true.
+		/// Accepts any server certificate — see that property's documentation (keywords: TLS bypass, certificate validation bypass).
+		/// </summary>
+		bool TlsCertificatePermissiveValidationCallbackForBypassOnly(
 			 Object sender,
 			 X509Certificate certificate,
 			 X509Chain chain,

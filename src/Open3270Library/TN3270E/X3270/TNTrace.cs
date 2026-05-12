@@ -24,6 +24,7 @@
  
 #endregion
 using System;
+using System.Diagnostics;
 
 namespace Open3270
 {
@@ -83,6 +84,30 @@ namespace Open3270.TN3270
 				return;
 			if (mAudit != null)
 				mAudit.WriteLine(text);
+		}
+
+		/// <summary>
+		/// Emits a one-shot security warning that is not gated by trace toggles (see TLS certificate bypass in Telnet).
+		/// Writes to the audit sink when present and always to <see cref="Trace"/> at warning level.
+		/// </summary>
+		public void WriteTlsSecurityWarning(string text)
+		{
+			if (mAudit != null)
+				mAudit.WriteLine(text);
+			Trace.TraceWarning(text);
+		}
+
+		/// <summary>
+		/// Emits the TLS/certificate validation runtime summary (not gated by trace toggles). Used at <c>SslStream</c> setup.
+		/// </summary>
+		public void WriteTlsConnectionStatusLine(string tlsStatusSummary)
+		{
+			if (mAudit != null)
+				mAudit.WriteLine(tlsStatusSummary);
+			if (tlsStatusSummary != null && tlsStatusSummary.IndexOf("BYPASS", StringComparison.Ordinal) >= 0)
+				Trace.TraceWarning(tlsStatusSummary);
+			else
+				Trace.TraceInformation(tlsStatusSummary);
 		}
 		// TN commands
 		public void trace_ds(string fmt, params object[] args)

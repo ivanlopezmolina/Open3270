@@ -61,6 +61,8 @@ namespace Open3270
 		private bool submitAllKeyboardCommands = false;
 		private bool refuseTN3270E = false;
 		private bool useSSL = false;
+		/// <summary>Default: secure certificate validation for TLS.</summary>
+		private bool dangerousTlsCertificateValidationBypass = false;
 
 
 		internal void Dump(IAudit sout)
@@ -80,6 +82,9 @@ namespace Open3270
 			sout.WriteLine("Config.AlwaysRefreshWhenWaiting " + alwaysRefreshWhenWaiting);
 			sout.WriteLine("Config.SubmitAllKeyboardCommands " + submitAllKeyboardCommands);
 			sout.WriteLine("Config.RefuseTN3270E " + refuseTN3270E);
+			sout.WriteLine("Config.UseSSL " + useSSL);
+			sout.WriteLine("Config.DangerousTlsCertificateValidationBypass " + dangerousTlsCertificateValidationBypass);
+			sout.WriteLine("TlsStatus: " + GetTlsCertificateValidationStatusSummary());
 		}
 
 		/// <summary>
@@ -120,6 +125,49 @@ namespace Open3270
 		{
 			get { return useSSL; }
 			set { useSSL = value; }
+		}
+
+		/// <summary>
+		/// When <c>true</c>, the TLS client accepts any server certificate (custom validation callback always succeeds).
+		/// This <b>disables MITM protection</b> and must <b>never</b> be used on untrusted networks unless you explicitly
+		/// accept that risk.
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// If TLS fails with default validation, typical causes include: untrusted CA / incomplete certificate chain,
+		/// hostname mismatch (CN/SAN does not match the host you connected to), expired or wrong certificate.
+		/// Fix trust (install CA, correct chain), fix DNS/host name to match the certificate, or correct server config first;
+		/// enable this bypass only as a last resort in controlled environments (labs, local emulators) when you understand the exposure.
+		/// </para>
+		/// <para>
+		/// Log/search keywords for documentation and support: <c>TLS bypass</c>, <c>certificate validation bypass</c>,
+		/// <c>DangerousTlsCertificateValidationBypass</c>.
+		/// </para>
+		/// </remarks>
+		public bool DangerousTlsCertificateValidationBypass
+		{
+			get { return dangerousTlsCertificateValidationBypass; }
+			set { dangerousTlsCertificateValidationBypass = value; }
+		}
+
+		/// <summary>
+		/// Single human-readable summary of TLS use and server certificate validation mode for logs, dumps, and support.
+		/// </summary>
+		/// <returns>
+		/// When <see cref="UseSSL"/> is <c>false</c>: <c>TLS: disabled (plain TCP)</c>.
+		/// When TLS is on and <see cref="DangerousTlsCertificateValidationBypass"/> is <c>false</c>: strict platform validation.
+		/// When TLS is on and bypass is <c>true</c>: insecure bypass mode (MITM possible).
+		/// </returns>
+		/// <remarks>
+		/// Grep / documentation keywords: <c>DangerousTlsCertificateValidationBypass</c>, <c>TLS bypass status</c>.
+		/// </remarks>
+		public string GetTlsCertificateValidationStatusSummary()
+		{
+			if (!useSSL)
+				return "TLS: disabled (plain TCP)";
+			if (!dangerousTlsCertificateValidationBypass)
+				return "TLS: enabled; certificate validation: STRICT (platform default)";
+			return "TLS: enabled; certificate validation: BYPASS (DangerousTlsCertificateValidationBypass=true — INSECURE, MITM possible)";
 		}
 
 		/// <summary>
