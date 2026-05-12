@@ -48,6 +48,16 @@ public class ConnectionConfig {
     private boolean submitAllKeyboardCommands     = false;
     private boolean refuseTN3270E                 = false;
     private boolean useSSL                        = false;
+    /**
+     * When {@code true}, a future TLS implementation would skip normal certificate validation (insecure).
+     * Default {@code false}. Disables MITM protection if ever used with TLS; never enable on untrusted networks
+     * unless you explicitly accept that risk.
+     * <p>
+     * Typical validation failures: untrusted CA / broken chain, hostname mismatch (CN/SAN), expired cert.
+     * Fix trust and host names first; use bypass only as a last resort in controlled environments.
+     * Search keywords: {@code TLS bypass}, {@code certificate validation bypass}, {@code DangerousTlsCertificateValidationBypass}.
+     */
+    private boolean dangerousTlsCertificateValidationBypass = false;
 
     public ConnectionConfig() {}
 
@@ -68,6 +78,8 @@ public class ConnectionConfig {
         sout.writeLine("Config.SubmitAllKeyboardCommands " + submitAllKeyboardCommands);
         sout.writeLine("Config.RefuseTN3270E " + refuseTN3270E);
         sout.writeLine("Config.UseSSL " + useSSL);
+        sout.writeLine("Config.DangerousTlsCertificateValidationBypass " + dangerousTlsCertificateValidationBypass);
+        sout.writeLine("TlsStatus: " + getTlsCertificateValidationStatusSummary());
     }
 
     public boolean isFastScreenMode() { return fastScreenMode; }
@@ -114,4 +126,26 @@ public class ConnectionConfig {
 
     public boolean isUseSSL() { return useSSL; }
     public void setUseSSL(boolean useSSL) { this.useSSL = useSSL; }
+
+    public boolean isDangerousTlsCertificateValidationBypass() { return dangerousTlsCertificateValidationBypass; }
+    public void setDangerousTlsCertificateValidationBypass(boolean dangerousTlsCertificateValidationBypass) {
+        this.dangerousTlsCertificateValidationBypass = dangerousTlsCertificateValidationBypass;
+    }
+
+    /**
+     * Single human-readable summary of TLS use and server certificate validation for logs and dumps.
+     * <p>Grep keywords: {@code DangerousTlsCertificateValidationBypass}, {@code TLS bypass status}.</p>
+     *
+     * @return when {@code useSSL} is false, plain TCP; when TLS on and bypass off, strict validation;
+     *         when bypass on, insecure mode (MITM possible)
+     */
+    public String getTlsCertificateValidationStatusSummary() {
+        if (!useSSL) {
+            return "TLS: disabled (plain TCP)";
+        }
+        if (!dangerousTlsCertificateValidationBypass) {
+            return "TLS: enabled; certificate validation: STRICT (platform default)";
+        }
+        return "TLS: enabled; certificate validation: BYPASS (DangerousTlsCertificateValidationBypass=true — INSECURE, MITM possible)";
+    }
 }
