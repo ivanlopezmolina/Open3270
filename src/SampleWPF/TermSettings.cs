@@ -24,6 +24,7 @@ namespace TerminalDemo
 			this.HostPort = Properties.Settings.Default.HostPort;
 			this.TerminalType = Properties.Settings.Default.TerminalType;
 			this.UseSSL = Properties.Settings.Default.UseSSL;
+			this.DangerousTlsCertificateValidationBypass = Properties.Settings.Default.DangerousTlsCertificateValidationBypass;
 		}
 
 		internal void SaveToSettings(Settings settings)
@@ -32,6 +33,7 @@ namespace TerminalDemo
 			Settings.Default.HostPort = this.HostPort;
 			Settings.Default.TerminalType = this.TerminalType;
 			Settings.Default.UseSSL = this.UseSSL;
+			Settings.Default.DangerousTlsCertificateValidationBypass = this.DangerousTlsCertificateValidationBypass;
 
 			Settings.Default.Save();
 		}
@@ -89,8 +91,17 @@ namespace TerminalDemo
 			}
 		}
 
+		bool dangerousTlsCertificateValidationBypass;
 
-
+		public bool DangerousTlsCertificateValidationBypass
+		{
+			get { return this.dangerousTlsCertificateValidationBypass; }
+			set
+			{
+				this.dangerousTlsCertificateValidationBypass = value;
+				this.OnPropertyChanged("DangerousTlsCertificateValidationBypass");
+			}
+		}
 
 		string terminalType;
 
