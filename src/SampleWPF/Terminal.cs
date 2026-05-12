@@ -43,6 +43,7 @@ namespace TerminalDemo
 			emu.Config.HostPort = Properties.Settings.Default.HostPort;
 			emu.Config.TermType = Properties.Settings.Default.TerminalType;
 			emu.Config.UseSSL = Properties.Settings.Default.UseSSL;
+			emu.Config.DangerousTlsCertificateValidationBypass = Properties.Settings.Default.DangerousTlsCertificateValidationBypass;
 
 			//Begin the connection process asynchomously
 			this.IsConnecting = true;
